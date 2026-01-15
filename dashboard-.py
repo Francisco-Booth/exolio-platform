@@ -1,153 +1,144 @@
 import streamlit as st
+import os
 import pandas as pd
-import random
-import time
-import PyPDF2
-import docx
+import datetime
+import shutil
 
-# --- CONFIGURATION & STYLING ---
-st.set_page_config(page_title="Academic Integrity Evidence Report", layout="centered")
+# --- CONFIGURATION ---
+ADMIN_PASSWORD = "mysecretpassword"  # <--- You can change this
+SUBMISSIONS_FOLDER = "submissions"
+DB_FILE = "client_requests.csv"
 
+st.set_page_config(page_title="Exolio Verification", layout="centered")
+
+# --- CUSTOM CSS ---
 st.markdown("""
 <style>
-    .report-container {
-        background-color: white;
-        padding: 30px;
-        border-radius: 5px;
-        border-top: 10px solid #000;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-        font-family: 'Helvetica', 'Arial', sans-serif;
-    }
-    .header {
-        font-size: 24px; font-weight: bold; text-transform: uppercase; 
-        border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 10px;
-    }
-    .sub-header { font-size: 14px; color: #666; text-transform: uppercase; margin-bottom: 30px; }
-    .metric-box { background-color: #f9f9f9; padding: 15px; border-left: 5px solid #333; margin-bottom: 10px; }
-    .highlight { background-color: #fff9c4; padding: 2px 5px; border-radius: 3px; }
+    .main-header {font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 20px; color: #111;}
+    .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 30px;}
+    .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
 </style>
 """, unsafe_allow_html=True)
 
-# --- HELPER FUNCTIONS ---
-def read_pdf(file):
-    reader = PyPDF2.PdfReader(file)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text()
-    return text
+# --- BACKEND LOGIC ---
+if not os.path.exists(SUBMISSIONS_FOLDER):
+    os.makedirs(SUBMISSIONS_FOLDER)
 
-def read_docx(file):
-    doc = docx.Document(file)
-    text = "\n".join([para.text for para in doc.paragraphs])
-    return text
-
-# --- SIDEBAR INPUTS ---
-st.sidebar.header("Data Submission")
-st.sidebar.info("Upload Student Assignment (PDF or Word)")
-
-student_id = st.sidebar.text_input("Student ID (Anonymised)", "STU-88942-X")
-assessment_title = st.sidebar.text_input("Assessment Title", "History of Artificial Intelligence")
-
-# FILE UPLOADER
-uploaded_file = st.sidebar.file_uploader("Drop document here", type=["pdf", "docx"])
-analyze_btn = st.sidebar.button("GENERATE REPORT", type="primary")
-
-text_input = ""
-if uploaded_file is not None:
-    try:
-        if uploaded_file.name.endswith('.pdf'):
-            text_input = read_pdf(uploaded_file)
-            st.sidebar.success(f"PDF Loaded: {len(text_input)} characters detected.")
-        elif uploaded_file.name.endswith('.docx'):
-            text_input = read_docx(uploaded_file)
-            st.sidebar.success(f"Word Doc Loaded: {len(text_input)} characters detected.")
-    except Exception as e:
-        st.sidebar.error("Error reading file. Please ensure it is not encrypted.")
-
-# --- MAIN REPORT LOGIC ---
-if analyze_btn and text_input:
-    # Mimic "Processing" time
-    with st.spinner(f"Extracting text from {uploaded_file.name}... Analyzing Stylometry..."):
-        time.sleep(2) 
+def save_submission(uploaded_files, email, notes):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    clean_email = email.split('@')[0].replace('.', '_')
+    folder_name = f"{timestamp}_{clean_email}"
+    user_folder = os.path.join(SUBMISSIONS_FOLDER, folder_name)
+    os.makedirs(user_folder, exist_ok=True)
     
-    # --- SIMULATED RESULTS (The backend math goes here later) ---
-    word_count = len(text_input.split())
-    
-    # Logic: Shorter texts in this demo get higher AI scores
-    if word_count > 100: 
-        ai_score = random.randint(65, 95) # High AI likely
-        burstiness = "Low (Uniform)"
-        perplexity = "12.4 (Very Predictable)"
-        label = "High Likelihood"
-    else:
-        ai_score = random.randint(5, 30) # Human likely
-        burstiness = "High (Varied)"
-        perplexity = "65.8 (Complex)"
-        label = "Low Likelihood"
+    saved_paths = []
+    for uploaded_file in uploaded_files:
+        file_path = os.path.join(user_folder, uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        saved_paths.append(file_path)
 
-    # --- REPORT RENDER ---
-    st.markdown(f"""
-    <div class='report-container'>
-        <div class='header'>Academic Integrity Evidence Report</div>
-        <div class='sub-header'>CONFIDENTIAL // FOR INTERNAL USE ONLY</div>
-        <p><strong>Institution:</strong> University Forensic Dept</p>
-        <p><strong>Student ID:</strong> {student_id}</p>
-        <p><strong>Assessment:</strong> {assessment_title}</p>
-        <p><strong>File Name:</strong> {uploaded_file.name}</p>
-        <p><strong>Report Date:</strong> {time.strftime("%d %B %Y")}</p>
-        <br>
-    """, unsafe_allow_html=True)
-
-    st.markdown("## 1. Executive Summary")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric(label="Aggregated AI Probability", value=f"{ai_score}%", delta=label, delta_color="inverse")
-    with col2:
-        st.metric(label="Stylometric Deviation", value="Medium-High")
-
-    # Page 2 visuals
-    st.markdown("---")
-    st.markdown("## 2. Stylometric Fingerprint")
-    st.write("Analysis of Burstiness (sentence variation) and Perplexity (text predictability).")
-
-    data = {
-        "Metric": ["Perplexity", "Burstiness", "Vocab Richness", "Syntax Variance"],
-        "Value": [perplexity, burstiness, "0.45 (Average)", "Low"],
-        "Interpretation": ["Consistent with AI" if ai_score > 50 else "Human Range", 
-                           "Machine Pattern" if ai_score > 50 else "Natural", 
-                           "-", "Repetitive Structure"]
+    new_data = {
+        "Timestamp": timestamp,
+        "Email": email,
+        "File Count": len(uploaded_files),
+        "Notes": notes,
+        "Folder_Path": folder_name
     }
-    st.table(pd.DataFrame(data))
+    
+    # Save metadata to CSV
+    if not os.path.exists(DB_FILE):
+        df = pd.DataFrame([new_data])
+        df.to_csv(DB_FILE, index=False)
+    else:
+        df = pd.DataFrame([new_data])
+        df.to_csv(DB_FILE, mode='a', header=False, index=False)
+        
+    return user_folder
 
-    # Page 3 Simulation
-    st.markdown("---")
-    st.markdown("## 3. Extracted Text & Signals")
-    
-    sentences = text_input.split('.')
-    # Show first 1000 characters to keep report clean
-    display_sample = text_input[:2000] 
-    
-    # Highlight simulation
-    formatted_text = display_sample.replace(" AI ", " <span class='highlight'> AI </span> ") \
-                                   .replace(" the ", " <span class='highlight'> the </span> ")
-    
-    st.markdown(f"""
-    <div style='background-color:#eee; padding:15px; font-size:12px; font-family:monospace;'>
-    {formatted_text}... <br><br> 
-    (Showing first 2000 chars of extracted text)
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+def create_zip(folder_path):
+    shutil.make_archive(folder_path, 'zip', folder_path)
+    return f"{folder_path}.zip"
 
-else:
-    # LANDING PAGE
-    st.title("🛡️ Academic Integrity Portal")
-    st.markdown(f"""
-    **Upload Evidence.**
+# --- SIDEBAR & NAVIGATION ---
+st.sidebar.title("Exolio Portal")
+page = st.sidebar.radio("Menu", ["Verification Request", "Admin Login"])
+st.sidebar.markdown("---")
+
+# ==========================================
+# PAGE 1: STUDENT SUBMISSION FORM
+# ==========================================
+if page == "Verification Request":
+    st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
     
-    1.  Drag & drop a **PDF** or **Word (.docx)** file into the left sidebar.
-    2.  Click **Generate Report**.
+    with st.form("submission_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            email = st.text_input("Your Email", placeholder="student@uni.edu")
+        with col2:
+            notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
+            
+        uploaded_files = st.file_uploader("Upload Documents (PDF/Docx)", accept_multiple_files=True)
+        
+        st.caption("🔒 All submissions are secure and confidential.")
+        submitted = st.form_submit_button("Submit for Verification", type="primary")
+
+    if submitted:
+        if not email or "@" not in email:
+            st.error("Please enter a valid email address.")
+        elif not uploaded_files:
+            st.error("Please upload at least one file.")
+        else:
+            with st.spinner("Encrypting and Queuing..."):
+                save_submission(uploaded_files, email, notes)
+                st.markdown("""
+                <div class='success-box'>
+                    ✅ <strong>Documents Received</strong><br>
+                    You have successfully queued your files.<br>
+                    Your integrity report will be sent to your email shortly.
+                </div>
+                """, unsafe_allow_html=True)
+
+# ==========================================
+# PAGE 2: ADMIN PANEL
+# ==========================================
+elif page == "Admin Login":
+    st.header("Admin Access")
+    password = st.text_input("Password", type="password")
     
-    *Current System Status: Online*
-    """)
+    if password == ADMIN_PASSWORD:
+        st.success("Access Granted")
+        
+        if os.path.exists(DB_FILE):
+            df = pd.read_csv(DB_FILE)
+            df = df.iloc[::-1] # Newest first
+            
+            st.dataframe(df[["Timestamp", "Email", "Notes", "File Count"]], use_container_width=True)
+            
+            st.markdown("### Download Submission")
+            # Selectbox based on email and time
+            options = df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1).tolist()
+            selected = st.selectbox("Choose student:", options)
+            
+            if selected:
+                row = df[df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1) == selected].iloc[0]
+                folder_name = row['Folder_Path']
+                full_path = os.path.join(SUBMISSIONS_FOLDER, folder_name)
+                
+                if os.path.exists(full_path):
+                    zip_path = create_zip(full_path)
+                    with open(zip_path, "rb") as fp:
+                        st.download_button(
+                            label=f"⬇️ Download {folder_name} (ZIP)",
+                            data=fp,
+                            file_name=f"{folder_name}.zip",
+                            mime="application/zip",
+                            type="primary"
+                        )
+                else:
+                    st.warning("⚠️ Files missing (The Cloud server may have reset).")
+        else:
+            st.info("No requests yet.")
+    elif password:
+        st.error("Access Denied")
