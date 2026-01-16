@@ -5,7 +5,7 @@ import datetime
 import shutil
 
 # --- CONFIGURATION ---
-ADMIN_PASSWORD = "mysecretpassword"  # <--- You can change this
+ADMIN_PASSWORD = "mysecretpassword"  # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
 
@@ -17,6 +17,7 @@ st.markdown("""
     .main-header {font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 20px; color: #111;}
     .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 30px;}
     .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
+    .donation-box {background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #ddd;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -62,7 +63,8 @@ def create_zip(folder_path):
 
 # --- SIDEBAR & NAVIGATION ---
 st.sidebar.title("Exolio Portal")
-page = st.sidebar.radio("Menu", ["Verification Request", "Admin Login"])
+# Added "Support Project" to the menu list below
+page = st.sidebar.radio("Menu", ["Verification Request", "Support Project", "Admin Login"])
 st.sidebar.markdown("---")
 
 # ==========================================
@@ -101,7 +103,46 @@ if page == "Verification Request":
                 """, unsafe_allow_html=True)
 
 # ==========================================
-# PAGE 2: ADMIN PANEL
+# PAGE 2: DONATION / SUPPORT PAGE (NEW)
+# ==========================================
+elif page == "Support Project":
+    st.markdown("<div class='main-header'>Support This Project</div>", unsafe_allow_html=True)
+    
+    st.info("Exolio is maintained by independent student developers. Your contributions help cover server costs and expert verification time.")
+
+    st.markdown("### 🏦 Bank Transfer (Wise)")
+    st.markdown("Use the details below to contribute directly.")
+
+    with st.container():
+        st.markdown("<div class='donation-box'>", unsafe_allow_html=True)
+        
+        st.write("Account Holder: **Francisco George Booth**")
+        st.divider()
+
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.caption("🇬🇧 UK Sort Code")
+            st.code("23-14-70", language=None)
+            
+            st.caption("Account Number")
+            st.code("83139789", language=None)
+
+        with col2:
+            st.caption("🌍 International (IBAN)")
+            st.code("GB80 TRWI 2314 7083 1397 89", language=None)
+            
+            st.caption("BIC / SWIFT")
+            st.code("TRWIGB2LXXX", language=None)
+            
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown(" ")
+    st.success("Thank you for supporting honest academic integrity tools!")
+
+
+# ==========================================
+# PAGE 3: ADMIN PANEL
 # ==========================================
 elif page == "Admin Login":
     st.header("Admin Access")
@@ -112,32 +153,34 @@ elif page == "Admin Login":
         
         if os.path.exists(DB_FILE):
             df = pd.read_csv(DB_FILE)
-            df = df.iloc[::-1] # Newest first
-            
-            st.dataframe(df[["Timestamp", "Email", "Notes", "File Count"]], use_container_width=True)
-            
-            st.markdown("### Download Submission")
-            # Selectbox based on email and time
-            options = df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1).tolist()
-            selected = st.selectbox("Choose student:", options)
-            
-            if selected:
-                row = df[df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1) == selected].iloc[0]
-                folder_name = row['Folder_Path']
-                full_path = os.path.join(SUBMISSIONS_FOLDER, folder_name)
+            if not df.empty:
+                df = df.iloc[::-1] # Newest first
                 
-                if os.path.exists(full_path):
-                    zip_path = create_zip(full_path)
-                    with open(zip_path, "rb") as fp:
-                        st.download_button(
-                            label=f"⬇️ Download {folder_name} (ZIP)",
-                            data=fp,
-                            file_name=f"{folder_name}.zip",
-                            mime="application/zip",
-                            type="primary"
-                        )
-                else:
-                    st.warning("⚠️ Files missing (The Cloud server may have reset).")
+                st.dataframe(df[["Timestamp", "Email", "Notes", "File Count"]], use_container_width=True)
+                
+                st.markdown("### Download Submission")
+                options = df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1).tolist()
+                selected = st.selectbox("Choose student:", options)
+                
+                if selected:
+                    row = df[df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1) == selected].iloc[0]
+                    folder_name = row['Folder_Path']
+                    full_path = os.path.join(SUBMISSIONS_FOLDER, folder_name)
+                    
+                    if os.path.exists(full_path):
+                        zip_path = create_zip(full_path)
+                        with open(zip_path, "rb") as fp:
+                            st.download_button(
+                                label=f"⬇️ Download {folder_name} (ZIP)",
+                                data=fp,
+                                file_name=f"{folder_name}.zip",
+                                mime="application/zip",
+                                type="primary"
+                            )
+                    else:
+                        st.warning("⚠️ Files missing (The Cloud server may have reset).")
+            else:
+                st.info("No submissions yet.")
         else:
             st.info("No requests yet.")
     elif password:
