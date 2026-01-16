@@ -119,7 +119,7 @@ if page == "Verification Request":
                 """, unsafe_allow_html=True)
 
     # --- DONATION SECTION (Below the Button) ---
-    st.markdown("<div class='donate-header'>Please donate to keep Exolio AI going</div>", unsafe_allow_html=True)
+    st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
     
     st.markdown("<div class='donate-box'>", unsafe_allow_html=True)
     st.write("Account Holder: **Francisco George Booth**")
