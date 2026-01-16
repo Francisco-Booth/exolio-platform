@@ -17,7 +17,22 @@ st.markdown("""
     .main-header {font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 20px; color: #111;}
     .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 30px;}
     .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
-    .donation-box {background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #ddd;}
+    
+    /* Donation Section Styling */
+    .donate-header {
+        font-size: 22px; 
+        font-weight: bold; 
+        text-align: center; 
+        margin-top: 40px; 
+        margin-bottom: 15px; 
+        color: #222;
+    }
+    .donate-box {
+        background-color: #f8f9fa; 
+        padding: 20px; 
+        border-radius: 10px; 
+        border: 2px solid #e0e0e0;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -61,19 +76,20 @@ def create_zip(folder_path):
     shutil.make_archive(folder_path, 'zip', folder_path)
     return f"{folder_path}.zip"
 
-# --- SIDEBAR & NAVIGATION ---
+# --- SIDEBAR ---
 st.sidebar.title("Exolio Portal")
-# Added "Support Project" to the menu list below
-page = st.sidebar.radio("Menu", ["Verification Request", "Support Project", "Admin Login"])
+page = st.sidebar.radio("Menu", ["Verification Request", "Admin Login"])
 st.sidebar.markdown("---")
+st.sidebar.caption("System Status: Online")
 
 # ==========================================
-# PAGE 1: STUDENT SUBMISSION FORM
+# PAGE 1: STUDENT SUBMISSION + DONATION
 # ==========================================
 if page == "Verification Request":
     st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
     st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
     
+    # --- FORM ---
     with st.form("submission_form"):
         col1, col2 = st.columns(2)
         with col1:
@@ -102,47 +118,32 @@ if page == "Verification Request":
                 </div>
                 """, unsafe_allow_html=True)
 
-# ==========================================
-# PAGE 2: DONATION / SUPPORT PAGE (NEW)
-# ==========================================
-elif page == "Support Project":
-    st.markdown("<div class='main-header'>Support This Project</div>", unsafe_allow_html=True)
+    # --- DONATION SECTION (Below the Button) ---
+    st.markdown("<div class='donate-header'>Please donate to keep Exolio AI going</div>", unsafe_allow_html=True)
     
-    st.info("Exolio is maintained by independent student developers. Your contributions help cover server costs and expert verification time.")
-
-    st.markdown("### 🏦 Bank Transfer (Wise)")
-    st.markdown("Use the details below to contribute directly.")
-
-    with st.container():
-        st.markdown("<div class='donation-box'>", unsafe_allow_html=True)
-        
-        st.write("Account Holder: **Francisco George Booth**")
-        st.divider()
-
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.caption("🇬🇧 UK Sort Code")
-            st.code("23-14-70", language=None)
-            
-            st.caption("Account Number")
-            st.code("83139789", language=None)
-
-        with col2:
-            st.caption("🌍 International (IBAN)")
-            st.code("GB80 TRWI 2314 7083 1397 89", language=None)
-            
-            st.caption("BIC / SWIFT")
-            st.code("TRWIGB2LXXX", language=None)
-            
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div class='donate-box'>", unsafe_allow_html=True)
+    st.write("Account Holder: **Francisco George Booth**")
     
-    st.markdown(" ")
-    st.success("Thank you for supporting honest academic integrity tools!")
+    d_col1, d_col2 = st.columns(2)
+    with d_col1:
+        st.caption("🇬🇧 UK Sort Code")
+        st.code("23-14-70", language=None)
+        
+        st.caption("Account Number")
+        st.code("83139789", language=None)
+    
+    with d_col2:
+        st.caption("🌍 International (IBAN)")
+        st.code("GB80 TRWI 2314 7083 1397 89", language=None)
+        
+        st.caption("BIC / SWIFT")
+        st.code("TRWIGB2LXXX", language=None)
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ==========================================
-# PAGE 3: ADMIN PANEL
+# PAGE 2: ADMIN PANEL
 # ==========================================
 elif page == "Admin Login":
     st.header("Admin Access")
@@ -184,4 +185,3 @@ elif page == "Admin Login":
         else:
             st.info("No requests yet.")
     elif password:
-        st.error("Access Denied")
