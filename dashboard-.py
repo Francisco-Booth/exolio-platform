@@ -27,24 +27,11 @@ st.markdown("""
         margin-bottom: 20px; 
         color: #222;
     }
-    
-    /* The box for the Name */
-    .name-box {
-        background-color: #ffffff; 
-        padding: 15px; 
-        border-radius: 8px; 
-        border: 2px solid #000;
-        text-align: center;
-        font-weight: bold;
-        font-size: 16px;
-        color: black;
-        margin-bottom: 15px;
-    }
 
     /* The main container for numbers */
     .donate-box {
         background-color: #f0f2f6; 
-        padding: 20px; 
+        padding: 25px; 
         border-radius: 10px; 
         border: 1px solid #ddd;
     }
@@ -145,20 +132,18 @@ if page == "Verification Request":
     # --- DONATION SECTION ---
     st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
     
-    # Account Holder in its own separate white box with a black border
-    st.markdown("""
-    <div class='name-box'>
-        Account Holder:<br>
-        <span style='font-size: 18px; color: black;'>Francisco George Booth</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Numbers container
+    # Start of the grey container
     st.markdown("<div class='donate-box'>", unsafe_allow_html=True)
     
+    # Name Section (Formatted same as numbers)
+    st.markdown("<span class='label-black'>Account Holder</span>", unsafe_allow_html=True)
+    st.code("Francisco George Booth", language=None)
+
+    st.divider() # Optional separation line, clean look
+
+    # Bank Numbers
     d_col1, d_col2 = st.columns(2)
     with d_col1:
-        # Using markdown with the custom css class to force Black color
         st.markdown("<span class='label-black'>🇬🇧 UK Sort Code</span>", unsafe_allow_html=True)
         st.code("23-14-70", language=None)
         
