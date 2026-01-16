@@ -18,7 +18,7 @@ st.markdown("""
     .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 30px;}
     .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
     
-    /* Donation Header Styling */
+    /* Donation Section Styling */
     .donate-header {
         font-size: 22px; 
         font-weight: bold; 
@@ -26,6 +26,14 @@ st.markdown("""
         margin-top: 50px; 
         margin-bottom: 20px; 
         color: #222;
+    }
+
+    /* The main container for numbers */
+    .donate-box {
+        background-color: #f0f2f6; 
+        padding: 25px; 
+        border-radius: 10px; 
+        border: 1px solid #ddd;
     }
 
     /* Custom style for the labels to be BLACK and BOLD */
@@ -124,11 +132,14 @@ if page == "Verification Request":
     # --- DONATION SECTION ---
     st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
     
-    # Name Section (Directly on background, no box)
+    # Start of the grey container
+    st.markdown("<div class='donate-box'>", unsafe_allow_html=True)
+    
+    # Name Section (Formatted same as numbers)
     st.markdown("<span class='label-black'>Account Holder</span>", unsafe_allow_html=True)
     st.code("Francisco George Booth", language=None)
 
-    st.markdown("") # Tiny Spacer
+    st.divider() # Optional separation line, clean look
 
     # Bank Numbers
     d_col1, d_col2 = st.columns(2)
@@ -145,6 +156,8 @@ if page == "Verification Request":
         
         st.markdown("<span class='label-black'>BIC / SWIFT</span>", unsafe_allow_html=True)
         st.code("TRWIGB2LXXX", language=None)
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 # ==========================================
