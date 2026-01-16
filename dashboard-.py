@@ -185,3 +185,4 @@ elif page == "Admin Login":
         else:
             st.info("No requests yet.")
     elif password:
+        st.error("Access Denied")
