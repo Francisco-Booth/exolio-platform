@@ -8,6 +8,7 @@ import shutil
 ADMIN_PASSWORD = "mysecretpassword"  # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
+VIDEO_FILENAME = "Exolio.com demonstration.mov" # <--- UPDATED EXACT FILENAME
 
 st.set_page_config(page_title="Exolio Verification", layout="centered")
 
@@ -15,7 +16,7 @@ st.set_page_config(page_title="Exolio Verification", layout="centered")
 st.markdown("""
 <style>
     .main-header {font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 20px; color: #111;}
-    .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 30px;}
+    .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 20px;}
     .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
     
     /* Donation Header Styling */
@@ -92,6 +93,14 @@ if page == "Verification Request":
     st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
     st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
     
+    # --- VIDEO PLAYER SECTION ---
+    if os.path.exists(VIDEO_FILENAME):
+        st.video(VIDEO_FILENAME)
+        st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
+    else:
+        # Simple error check to help you debug if filename is wrong
+        st.warning(f"Video file '{VIDEO_FILENAME}' not found. Please ensure it is in the main folder on GitHub.")
+
     # --- FORM ---
     with st.form("submission_form"):
         col1, col2 = st.columns(2)
@@ -100,15 +109,15 @@ if page == "Verification Request":
         with col2:
             notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
             
-        # --- NEW SECTION: TURNAROUND TIME INFO ---
+        # --- PROCESSING TIMES ---
         st.info("""
         **Estimated Processing Times:**
-        *   **1 Document:** Max 24 hours to return AI generated score by email
-        *   **2-9 Documents:** Max 48 hours to return AI generated score by email
-        *   **10-19 Documents:** Max 72 hours to return AI generated score by email
-        *   **20+ Documents:** Max 1 Week to return AI generated score by email
+        *   **1 Document:** Max 24 hours to return
+        *   **2-9 Documents:** Max 48 hours to return
+        *   **10-19 Documents:** Max 72 hours to return
+        *   **20+ Documents:** Max 1 Week to return
         """)
-        # -----------------------------------------
+        # ------------------------
             
         uploaded_files = st.file_uploader("Upload Documents (PDF/Docx)", accept_multiple_files=True)
         
