@@ -103,10 +103,10 @@ if page == "Verification Request":
         # --- NEW SECTION: TURNAROUND TIME INFO ---
         st.info("""
         **Estimated Processing Times:**
-        *   **1 Document:** Max 24 hours to return AI generated probability score by email
-        *   **2-9 Documents:** Max 48 hours to return AI generated probability score by email
-        *   **10-19 Documents:** Max 72 hours to return AI generated probability score by email
-        *   **20+ Documents:** Max 1 Week to return AI generated probability score by email
+        *   **1 Document:** Max 24 hours to return AI generated score by email
+        *   **2-9 Documents:** Max 48 hours to return AI generated score by email
+        *   **10-19 Documents:** Max 72 hours to return AI generated score by email
+        *   **20+ Documents:** Max 1 Week to return AI generated score by email
         """)
         # -----------------------------------------
             
