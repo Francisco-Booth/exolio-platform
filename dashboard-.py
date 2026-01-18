@@ -10,7 +10,7 @@ SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
 
 # !!! PASTE YOUR YOUTUBE LINK BELOW !!!
-YOUTUBE_LINK = "https://youtu.be/8g30Wr0QNKA"  # <--- REPLACE THIS STRING
+YOUTUBE_LINK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
 
 st.set_page_config(page_title="Exolio Verification", layout="centered")
 
@@ -29,15 +29,6 @@ st.markdown("""
         margin-top: 50px; 
         margin-bottom: 20px; 
         color: #222;
-    }
-
-    /* Custom style for the labels to be BLACK and BOLD */
-    .label-black {
-        color: black !important;
-        font-weight: bold;
-        font-size: 14px;
-        margin-bottom: 5px;
-        display: block;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -107,13 +98,13 @@ if page == "Verification Request":
         with col2:
             notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
             
-        # --- PROCESSING TIMES ---
+        # --- PROCESSING TIMES (UPDATED) ---
         st.info("""
-        **Estimated Processing Times:**
-        *   **1 Document:** Max 24 hours to return
-        *   **2-9 Documents:** Max 48 hours to return
-        *   **10-19 Documents:** Max 72 hours to return
-        *   **20+ Documents:** Max 1 Week to return
+        **Estimated Processing Times (Based on Total Word Count):**
+        *   **Less than 1,000 words:** Max 24 hours to return
+        *   **Between 1,000 and 5,000 words:** Max 48 hours to return
+        *   **Between 5,000 and 10,000 words:** Max 72 hours to return
+        *   **10,000+ words:** Max 1 Week to return
         """)
         # ------------------------
             
@@ -138,30 +129,11 @@ if page == "Verification Request":
                 </div>
                 """, unsafe_allow_html=True)
 
-    # --- DONATION SECTION ---
+    # --- DONATION SECTION (UPDATED) ---
     st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
     
-    # Name Section
-    st.markdown("<span class='label-black'>Account Holder</span>", unsafe_allow_html=True)
-    st.code("Francisco George Booth", language=None)
-
-    st.markdown("") # Spacer
-
-    # Bank Numbers
-    d_col1, d_col2 = st.columns(2)
-    with d_col1:
-        st.markdown("<span class='label-black'>🇬🇧 UK Sort Code</span>", unsafe_allow_html=True)
-        st.code("23-14-70", language=None)
-        
-        st.markdown("<span class='label-black'>Account Number</span>", unsafe_allow_html=True)
-        st.code("83139789", language=None)
-    
-    with d_col2:
-        st.markdown("<span class='label-black'>🌍 International (IBAN)</span>", unsafe_allow_html=True)
-        st.code("GB80 TRWI 2314 7083 1397 89", language=None)
-        
-        st.markdown("<span class='label-black'>BIC / SWIFT</span>", unsafe_allow_html=True)
-        st.code("TRWIGB2LXXX", language=None)
+    # Big Wise Link Button
+    st.link_button("👉 Click here to Pay securely via Wise", "https://wise.com/pay/me/franciscogeorgeb1", type="primary", use_container_width=True)
 
 
 # ==========================================
