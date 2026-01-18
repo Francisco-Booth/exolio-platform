@@ -8,7 +8,9 @@ import shutil
 ADMIN_PASSWORD = "mysecretpassword"  # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
-VIDEO_FILENAME = "Exolio.com demonstration.mov" # <--- UPDATED EXACT FILENAME
+
+# !!! PASTE YOUR YOUTUBE LINK BELOW !!!
+YOUTUBE_LINK = "https://youtu.be/8g30Wr0QNKA"  # <--- REPLACE THIS STRING
 
 st.set_page_config(page_title="Exolio Verification", layout="centered")
 
@@ -93,13 +95,9 @@ if page == "Verification Request":
     st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
     st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
     
-    # --- VIDEO PLAYER SECTION ---
-    if os.path.exists(VIDEO_FILENAME):
-        st.video(VIDEO_FILENAME)
-        st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
-    else:
-        # Simple error check to help you debug if filename is wrong
-        st.warning(f"Video file '{VIDEO_FILENAME}' not found. Please ensure it is in the main folder on GitHub.")
+    # --- YOUTUBE VIDEO SECTION ---
+    st.video(YOUTUBE_LINK)
+    st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
 
     # --- FORM ---
     with st.form("submission_form"):
