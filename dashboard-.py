@@ -10,7 +10,7 @@ SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
 
 # !!! PASTE YOUR YOUTUBE LINK BELOW !!!
-YOUTUBE_LINK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
+YOUTUBE_LINK = "https://youtu.be/8g30Wr0QNKA" 
 
 st.set_page_config(page_title="Exolio Verification", layout="centered")
 
