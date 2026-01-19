@@ -86,7 +86,7 @@ if page == "Verification Request":
     # --- LOGO SECTION ---
     if os.path.exists(LOGO_FILENAME):
         # width=200 limits it so it isn't huge. You can change this number (e.g. 150 or 300)
-        st.image(LOGO_FILENAME, width=200) 
+        st.image(LOGO_FILENAME, width=150) 
     else:
         # Just in case you haven't uploaded it yet, this prevents a crash
         pass 
