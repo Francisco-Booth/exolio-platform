@@ -8,9 +8,8 @@ import shutil
 ADMIN_PASSWORD = "mysecretpassword"  # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
-
-# !!! PASTE YOUR YOUTUBE LINK BELOW !!!
-YOUTUBE_LINK = "https://youtu.be/8g30Wr0QNKA" 
+YOUTUBE_LINK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" # <--- YOUR YOUTUBE LINK
+LOGO_FILENAME = "logo.png"  # <--- EXACT NAME OF YOUR LOGO FILE ON GITHUB
 
 st.set_page_config(page_title="Exolio Verification", layout="centered")
 
@@ -83,6 +82,15 @@ st.sidebar.caption("System Status: Online")
 # PAGE 1: STUDENT SUBMISSION + DONATION
 # ==========================================
 if page == "Verification Request":
+    
+    # --- LOGO SECTION ---
+    if os.path.exists(LOGO_FILENAME):
+        # width=200 limits it so it isn't huge. You can change this number (e.g. 150 or 300)
+        st.image(LOGO_FILENAME, width=200) 
+    else:
+        # Just in case you haven't uploaded it yet, this prevents a crash
+        pass 
+
     st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
     st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
     
@@ -98,7 +106,7 @@ if page == "Verification Request":
         with col2:
             notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
             
-        # --- PROCESSING TIMES (UPDATED) ---
+        # --- PROCESSING TIMES ---
         st.info("""
         **Estimated Processing Times (Based on Total Word Count):**
         *   **Less than 1,000 words:** Max 24 hours to return
@@ -129,7 +137,7 @@ if page == "Verification Request":
                 </div>
                 """, unsafe_allow_html=True)
 
-    # --- DONATION SECTION (UPDATED) ---
+    # --- DONATION SECTION ---
     st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
     
     # Big Wise Link Button
