@@ -11,31 +11,22 @@ DB_FILE = "client_requests.csv"
 YOUTUBE_LINK = "https://www.youtube.com/watch?v=8g30Wr0QNKA" # <--- YOUR YOUTUBE LINK
 LOGO_FILENAME = "logo.png"
 
-st.set_page_config(page_title="Exolio Verification", layout="centered")
+# !!! UPDATED: layout="wide" lets us touch the sidebar !!!
+st.set_page_config(page_title="Exolio Verification", layout="wide")
 
 # --- CUSTOM CSS ---
 st.markdown("""
 <style>
-    /* 1. FORCE LOGO HIGHER & LEFT */
+    /* 1. Remove Top White Space */
     div.block-container {
-        padding-top: 0.5rem; /* Moves everything up to the very top */
-        padding-left: 1rem;  /* Reduces space on the left */
-    }
-
-    /* 2. Style Titles */
-    .main-header {
-        font-size: 30px; 
-        font-weight: 800; 
-        text-align: center; 
-        margin-bottom: 20px; 
-        color: #111;
-        margin-top: -20px; /* Pulls title closer to the logo */
+        padding-top: 1rem;
+        padding-bottom: 1rem;
     }
     
+    /* 2. Styles for Content */
+    .main-header {font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 20px; color: #111;}
     .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 20px;}
     .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
-    
-    /* Donation Header Styling */
     .donate-header {
         font-size: 22px; 
         font-weight: bold; 
@@ -43,15 +34,6 @@ st.markdown("""
         margin-top: 50px; 
         margin-bottom: 20px; 
         color: #222;
-    }
-
-    /* Custom style for the labels to be BLACK and BOLD */
-    .label-black {
-        color: black !important;
-        font-weight: bold;
-        font-size: 14px;
-        margin-bottom: 5px;
-        display: block;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -107,109 +89,113 @@ st.sidebar.caption("System Status: Online")
 # ==========================================
 if page == "Verification Request":
     
-    # --- LOGO SECTION (TOP LEFT) ---
+    # 1. PLACE LOGO (Touching the top-left sidebar)
     if os.path.exists(LOGO_FILENAME):
-        # We use a column to align it purely left if desired, or just standard
-        # The 'padding-top: 0rem' in CSS handles the height
         st.image(LOGO_FILENAME, width=200) 
-    else:
-        # Placeholder in case image is missing to prevent errors
-        pass 
-
-    st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
     
-    # --- YOUTUBE VIDEO SECTION ---
-    st.video(YOUTUBE_LINK)
-    st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
+    # 2. CREATE COLUMNS TO CENTER THE REST
+    # [Empty Space] - [MAIN CONTENT] - [Empty Space]
+    spacer_left, main_content, spacer_right = st.columns([1, 2, 1])
 
-    # --- FORM ---
-    with st.form("submission_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            email = st.text_input("Your Email", placeholder="student@uni.edu")
-        with col2:
-            notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
-            
-        # --- PROCESSING TIMES ---
-        st.info("""
-        **Estimated Processing Times (Based on Total Word Count):**
-        *   **Less than 1,000 words:** Max 24 hours to return
-        *   **Between 1,000 and 5,000 words:** Max 48 hours to return
-        *   **Between 5,000 and 10,000 words:** Max 72 hours to return
-        *   **10,000+ words:** Max 1 Week to return
-        """)
-        # ------------------------
-            
-        uploaded_files = st.file_uploader("Upload Documents (PDF/Docx)", accept_multiple_files=True)
+    with main_content:
+        st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
         
-        st.caption("🔒 All submissions are secure and confidential.")
-        submitted = st.form_submit_button("Submit for Verification", type="primary")
+        # --- YOUTUBE VIDEO SECTION ---
+        st.video(YOUTUBE_LINK)
+        st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
 
-    if submitted:
-        if not email or "@" not in email:
-            st.error("Please enter a valid email address.")
-        elif not uploaded_files:
-            st.error("Please upload at least one file.")
-        else:
-            with st.spinner("Encrypting and Queuing..."):
-                save_submission(uploaded_files, email, notes)
-                st.markdown("""
-                <div class='success-box'>
-                    ✅ <strong>Documents Received</strong><br>
-                    You have successfully queued your files.<br>
-                    Your integrity report will be sent to your email shortly.
-                </div>
-                """, unsafe_allow_html=True)
+        # --- FORM ---
+        with st.form("submission_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                email = st.text_input("Your Email", placeholder="student@uni.edu")
+            with col2:
+                notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
+                
+            # --- PROCESSING TIMES ---
+            st.info("""
+            **Estimated Processing Times (Based on Total Word Count):**
+            *   **Less than 1,000 words:** Max 24 hours to return
+            *   **Between 1,000 and 5,000 words:** Max 48 hours to return
+            *   **Between 5,000 and 10,000 words:** Max 72 hours to return
+            *   **10,000+ words:** Max 1 Week to return
+            """)
+            # ------------------------
+                
+            uploaded_files = st.file_uploader("Upload Documents (PDF/Docx)", accept_multiple_files=True)
+            
+            st.caption("🔒 All submissions are secure and confidential.")
+            submitted = st.form_submit_button("Submit for Verification", type="primary")
 
-    # --- DONATION SECTION ---
-    st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
-    
-    # Big Wise Link Button
-    st.link_button("👉 Click here to Pay securely via Wise", "https://wise.com/pay/me/franciscogeorgeb1", type="primary", use_container_width=True)
+        if submitted:
+            if not email or "@" not in email:
+                st.error("Please enter a valid email address.")
+            elif not uploaded_files:
+                st.error("Please upload at least one file.")
+            else:
+                with st.spinner("Encrypting and Queuing..."):
+                    save_submission(uploaded_files, email, notes)
+                    st.markdown("""
+                    <div class='success-box'>
+                        ✅ <strong>Documents Received</strong><br>
+                        You have successfully queued your files.<br>
+                        Your integrity report will be sent to your email shortly.
+                    </div>
+                    """, unsafe_allow_html=True)
+
+        # --- DONATION SECTION ---
+        st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
+        
+        # Big Wise Link Button
+        st.link_button("👉 Click here to Pay securely via Wise", "https://wise.com/pay/me/franciscogeorgeb1", type="primary", use_container_width=True)
 
 
 # ==========================================
 # PAGE 2: ADMIN PANEL
 # ==========================================
 elif page == "Admin Login":
-    st.header("Admin Access")
-    password = st.text_input("Password", type="password")
+    # Centering Admin panel as well using columns
+    spacer_left, admin_content, spacer_right = st.columns([1, 2, 1])
     
-    if password == ADMIN_PASSWORD:
-        st.success("Access Granted")
+    with admin_content:
+        st.header("Admin Access")
+        password = st.text_input("Password", type="password")
         
-        if os.path.exists(DB_FILE):
-            df = pd.read_csv(DB_FILE)
-            if not df.empty:
-                df = df.iloc[::-1] # Newest first
-                
-                st.dataframe(df[["Timestamp", "Email", "Notes", "File Count"]], use_container_width=True)
-                
-                st.markdown("### Download Submission")
-                options = df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1).tolist()
-                selected = st.selectbox("Choose student:", options)
-                
-                if selected:
-                    row = df[df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1) == selected].iloc[0]
-                    folder_name = row['Folder_Path']
-                    full_path = os.path.join(SUBMISSIONS_FOLDER, folder_name)
+        if password == ADMIN_PASSWORD:
+            st.success("Access Granted")
+            
+            if os.path.exists(DB_FILE):
+                df = pd.read_csv(DB_FILE)
+                if not df.empty:
+                    df = df.iloc[::-1] # Newest first
                     
-                    if os.path.exists(full_path):
-                        zip_path = create_zip(full_path)
-                        with open(zip_path, "rb") as fp:
-                            st.download_button(
-                                label=f"⬇️ Download {folder_name} (ZIP)",
-                                data=fp,
-                                file_name=f"{folder_name}.zip",
-                                mime="application/zip",
-                                type="primary"
-                            )
-                    else:
-                        st.warning("⚠️ Files missing (The Cloud server may have reset).")
+                    st.dataframe(df[["Timestamp", "Email", "Notes", "File Count"]], use_container_width=True)
+                    
+                    st.markdown("### Download Submission")
+                    options = df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1).tolist()
+                    selected = st.selectbox("Choose student:", options)
+                    
+                    if selected:
+                        row = df[df.apply(lambda x: f"{x['Timestamp']} | {x['Email']}", axis=1) == selected].iloc[0]
+                        folder_name = row['Folder_Path']
+                        full_path = os.path.join(SUBMISSIONS_FOLDER, folder_name)
+                        
+                        if os.path.exists(full_path):
+                            zip_path = create_zip(full_path)
+                            with open(zip_path, "rb") as fp:
+                                st.download_button(
+                                    label=f"⬇️ Download {folder_name} (ZIP)",
+                                    data=fp,
+                                    file_name=f"{folder_name}.zip",
+                                    mime="application/zip",
+                                    type="primary"
+                                )
+                        else:
+                            st.warning("⚠️ Files missing (The Cloud server may have reset).")
+                else:
+                    st.info("No submissions yet.")
             else:
-                st.info("No submissions yet.")
-        else:
-            st.info("No requests yet.")
-    elif password:
-        st.error("Access Denied")
+                st.info("No requests yet.")
+        elif password:
+            st.error("Access Denied")
