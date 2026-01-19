@@ -11,15 +11,16 @@ DB_FILE = "client_requests.csv"
 YOUTUBE_LINK = "https://www.youtube.com/watch?v=8g30Wr0QNKA" # <--- YOUR YOUTUBE LINK
 LOGO_FILENAME = "logo.png"
 
-# !!! UPDATED: layout="wide" lets us touch the sidebar !!!
+# Use wide mode to allow content to stretch and logo to sit in corner
 st.set_page_config(page_title="Exolio Verification", layout="wide")
 
 # --- CUSTOM CSS ---
 st.markdown("""
 <style>
-    /* 1. Remove Top White Space */
+    /* 1. ADJUST TOP SPACING */
     div.block-container {
-        padding-top: 1rem;
+        /* I changed this from 1rem to 3rem to lower the logo slightly */
+        padding-top: 3rem; 
         padding-bottom: 1rem;
     }
     
@@ -89,12 +90,12 @@ st.sidebar.caption("System Status: Online")
 # ==========================================
 if page == "Verification Request":
     
-    # 1. PLACE LOGO (Touching the top-left sidebar)
+    # 1. PLACE LOGO (Top Left)
     if os.path.exists(LOGO_FILENAME):
         st.image(LOGO_FILENAME, width=200) 
     
-    # 2. CREATE COLUMNS TO CENTER THE REST
-    # [Empty Space] - [MAIN CONTENT] - [Empty Space]
+    # 2. COLUMNS FOR CENTERING CONTENT
+    # [Spacer] [MAIN CONTENT] [Spacer]
     spacer_left, main_content, spacer_right = st.columns([1, 2, 1])
 
     with main_content:
@@ -155,7 +156,7 @@ if page == "Verification Request":
 # PAGE 2: ADMIN PANEL
 # ==========================================
 elif page == "Admin Login":
-    # Centering Admin panel as well using columns
+    # Centering Admin panel as well
     spacer_left, admin_content, spacer_right = st.columns([1, 2, 1])
     
     with admin_content:
