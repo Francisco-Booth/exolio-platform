@@ -8,7 +8,7 @@ import shutil
 ADMIN_PASSWORD = "mysecretpassword"  # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
-YOUTUBE_LINK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" # <--- YOUR YOUTUBE LINK
+YOUTUBE_LINK = "https://www.youtube.com/watch?v=8g30Wr0QNKA" # <--- YOUR YOUTUBE LINK
 LOGO_FILENAME = "logo.png"
 
 st.set_page_config(page_title="Exolio Verification", layout="centered")
