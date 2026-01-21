@@ -8,7 +8,7 @@ import shutil
 ADMIN_PASSWORD = "mysecretpassword"  # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
-YOUTUBE_LINK = "https://www.youtube.com/watch?v=8g30Wr0QNKA" # <--- YOUR YOUTUBE LINK
+YOUTUBE_LINK = "https://youtu.be/mt_aSLGYNRs" # <--- YOUR YOUTUBE LINK
 LOGO_FILENAME = "logo.png"
 
 # Use wide mode to allow content to stretch and logo to sit in corner
