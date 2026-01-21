@@ -147,8 +147,8 @@ if page == "Verification Request":
         # --- DONATION SECTION ---
         st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
         
-        # Big Stripe Link Button
-        st.link_button("👉 Click here to Pay securely via Stripe", "https://buy.stripe.com/8x2aEWfmY6uO8e1ddBaEE00", type="primary", use_container_width=True)
+        # Big Starling Bank Link Button
+        st.link_button("👉 Click here to Pay securely via Starling Bank", "https://settleup.starlingbank.com/francisco-booth-88544a", type="primary", use_container_width=True)
 
 
 # ==========================================
