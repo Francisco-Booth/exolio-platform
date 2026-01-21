@@ -19,7 +19,6 @@ st.markdown("""
 <style>
     /* 1. ADJUST TOP SPACING */
     div.block-container {
-        /* I changed this from 1rem to 3rem to lower the logo slightly */
         padding-top: 3rem; 
         padding-bottom: 1rem;
     }
@@ -148,8 +147,8 @@ if page == "Verification Request":
         # --- DONATION SECTION ---
         st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
         
-        # Big Wise Link Button
-        st.link_button("👉 Click here to Pay securely via Wise", "https://wise.com/pay/me/franciscogeorgeb1", type="primary", use_container_width=True)
+        # Big Stripe Link Button
+        st.link_button("👉 Click here to Pay securely via Stripe", "https://buy.stripe.com/8x2aEWfmY6uO8e1ddBaEE00", type="primary", use_container_width=True)
 
 
 # ==========================================
