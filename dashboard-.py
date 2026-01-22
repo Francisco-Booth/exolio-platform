@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # --- CONFIGURATION ---
-ADMIN_PASSWORD = "mysecretpassword"
+ADMIN_PASSWORD = "mysecretpassword" # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
 YOUTUBE_LINK = "https://www.youtube.com/watch?v=mt_aSLGYNRs" # <--- YOUR YOUTUBE LINK
@@ -49,6 +49,7 @@ def send_notification_email(student_email, file_count, notes):
     """
     try:
         # Load secrets from Streamlit Cloud
+        # Ensure you have set up [email] secrets in Streamlit Cloud Dashboard
         sender_email = st.secrets["email"]["sender_email"]
         sender_password = st.secrets["email"]["sender_password"]
         receiver_email = st.secrets["email"]["receiver_email"]
@@ -57,7 +58,7 @@ def send_notification_email(student_email, file_count, notes):
         body = f"""
         New document(s) uploaded!
         
-        student: {student_email}
+        Student Email: {student_email}
         Files Uploaded: {file_count}
         Notes: {notes}
         
@@ -77,11 +78,10 @@ def send_notification_email(student_email, file_count, notes):
         text = msg.as_string()
         server.sendmail(sender_email, receiver_email, text)
         server.quit()
-        print("Email sent successfully.")
         return True
     except Exception as e:
         print(f"Email failed: {e}")
-        # We return False but don't stop the app, so the file still saves
+        # Return False so we know it failed, but don't crash the app
         return False
 
 def save_submission(uploaded_files, email, notes):
@@ -177,7 +177,7 @@ if page == "Verification Request":
                     # 1. Save File
                     save_submission(uploaded_files, email, notes)
                     
-                    # 2. Send Email Trigger (Only happens if file saved)
+                    # 2. Send Email Trigger (Using Secrets)
                     email_success = send_notification_email(email, len(uploaded_files), notes)
                     
                     st.markdown("""
@@ -189,14 +189,12 @@ if page == "Verification Request":
                     """, unsafe_allow_html=True)
                     
                     if not email_success:
-                        # Only show this to user if there is a severe backend error
-                        # Normally we hide email errors from the user
-                        st.warning("(Note: Files saved, but Admin notification failed. Don't worry, we check the database daily.)")
+                        st.warning("(Note: Files saved successfully, but Admin notification failed. We will check the database manually.)")
 
-        # DONATION SECTION
+        # DONATION SECTION (STARLING BANK)
         st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
         
-        st.link_button("👉 Click here to Pay securely via Wise", "https://wise.com/pay/me/franciscogeorgeb1", type="primary", use_container_width=True)
+        st.link_button("👉 Click here to Pay securely via Starling Bank", "https://settleup.starlingbank.com/francisco-booth-88544a", type="primary", use_container_width=True)
 
 
 # ==========================================
