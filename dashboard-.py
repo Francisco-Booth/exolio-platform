@@ -3,27 +3,26 @@ import os
 import pandas as pd
 import datetime
 import shutil
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # --- CONFIGURATION ---
-ADMIN_PASSWORD = "mysecretpassword"  # <--- REMEMBER TO CHANGE THIS
+ADMIN_PASSWORD = "mysecretpassword"
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
-YOUTUBE_LINK = "https://youtu.be/mt_aSLGYNRs" # <--- YOUR YOUTUBE LINK
+YOUTUBE_LINK = "https://www.youtube.com/watch?v=mt_aSLGYNRs" # <--- YOUR YOUTUBE LINK
 LOGO_FILENAME = "logo.png"
 
-# Use wide mode to allow content to stretch and logo to sit in corner
 st.set_page_config(page_title="Exolio Verification", layout="wide")
 
 # --- CUSTOM CSS ---
 st.markdown("""
 <style>
-    /* 1. ADJUST TOP SPACING */
     div.block-container {
         padding-top: 3rem; 
         padding-bottom: 1rem;
     }
-    
-    /* 2. Styles for Content */
     .main-header {font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 20px; color: #111;}
     .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 20px;}
     .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
@@ -41,6 +40,49 @@ st.markdown("""
 # --- BACKEND LOGIC ---
 if not os.path.exists(SUBMISSIONS_FOLDER):
     os.makedirs(SUBMISSIONS_FOLDER)
+
+# --- EMAIL NOTIFICATION FUNCTION ---
+def send_notification_email(student_email, file_count, notes):
+    """
+    Sends an email to Francisco when a new file is uploaded.
+    It retrieves credentials securely from st.secrets.
+    """
+    try:
+        # Load secrets from Streamlit Cloud
+        sender_email = st.secrets["email"]["sender_email"]
+        sender_password = st.secrets["email"]["sender_password"]
+        receiver_email = st.secrets["email"]["receiver_email"]
+
+        subject = f"🔔 New Exolio Submission from {student_email}"
+        body = f"""
+        New document(s) uploaded!
+        
+        student: {student_email}
+        Files Uploaded: {file_count}
+        Notes: {notes}
+        
+        Go to Admin Panel to download: https://share.streamlit.io/
+        """
+
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Connect to Gmail SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        text = msg.as_string()
+        server.sendmail(sender_email, receiver_email, text)
+        server.quit()
+        print("Email sent successfully.")
+        return True
+    except Exception as e:
+        print(f"Email failed: {e}")
+        # We return False but don't stop the app, so the file still saves
+        return False
 
 def save_submission(uploaded_files, email, notes):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -89,31 +131,29 @@ st.sidebar.caption("System Status: Online")
 # ==========================================
 if page == "Verification Request":
     
-    # 1. PLACE LOGO (Top Left)
+    # 1. PLACE LOGO
     if os.path.exists(LOGO_FILENAME):
         st.image(LOGO_FILENAME, width=200) 
     
-    # 2. COLUMNS FOR CENTERING CONTENT
-    # [Spacer] [MAIN CONTENT] [Spacer]
+    # 2. COLUMNS
     spacer_left, main_content, spacer_right = st.columns([1, 2, 1])
 
     with main_content:
         st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
         st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
         
-        # --- YOUTUBE VIDEO SECTION ---
+        # VIDEO
         st.video(YOUTUBE_LINK)
         st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
 
-        # --- FORM ---
+        # FORM
         with st.form("submission_form"):
             col1, col2 = st.columns(2)
             with col1:
                 email = st.text_input("Your Email", placeholder="student@uni.edu")
             with col2:
                 notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
-                
-            # --- PROCESSING TIMES ---
+            
             st.info("""
             **Estimated Processing Times (Based on Total Word Count):**
             *   **Less than 1,000 words:** Max 24 hours to return
@@ -121,7 +161,6 @@ if page == "Verification Request":
             *   **Between 5,000 and 10,000 words:** Max 72 hours to return
             *   **10,000+ words:** Max 1 Week to return
             """)
-            # ------------------------
                 
             uploaded_files = st.file_uploader("Upload Documents (PDF/Docx)", accept_multiple_files=True)
             
@@ -134,8 +173,13 @@ if page == "Verification Request":
             elif not uploaded_files:
                 st.error("Please upload at least one file.")
             else:
-                with st.spinner("Encrypting and Queuing..."):
+                with st.spinner("Encrypting, Queuing & Notifying..."):
+                    # 1. Save File
                     save_submission(uploaded_files, email, notes)
+                    
+                    # 2. Send Email Trigger (Only happens if file saved)
+                    email_success = send_notification_email(email, len(uploaded_files), notes)
+                    
                     st.markdown("""
                     <div class='success-box'>
                         ✅ <strong>Documents Received</strong><br>
@@ -143,19 +187,22 @@ if page == "Verification Request":
                         Your integrity report will be sent to your email shortly.
                     </div>
                     """, unsafe_allow_html=True)
+                    
+                    if not email_success:
+                        # Only show this to user if there is a severe backend error
+                        # Normally we hide email errors from the user
+                        st.warning("(Note: Files saved, but Admin notification failed. Don't worry, we check the database daily.)")
 
-        # --- DONATION SECTION ---
+        # DONATION SECTION
         st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
         
-        # Big Starling Bank Link Button
-        st.link_button("👉 Click here to Pay securely via Starling Bank", "https://settleup.starlingbank.com/francisco-booth-88544a", type="primary", use_container_width=True)
+        st.link_button("👉 Click here to Pay securely via Wise", "https://wise.com/pay/me/franciscogeorgeb1", type="primary", use_container_width=True)
 
 
 # ==========================================
 # PAGE 2: ADMIN PANEL
 # ==========================================
 elif page == "Admin Login":
-    # Centering Admin panel as well
     spacer_left, admin_content, spacer_right = st.columns([1, 2, 1])
     
     with admin_content:
@@ -168,8 +215,7 @@ elif page == "Admin Login":
             if os.path.exists(DB_FILE):
                 df = pd.read_csv(DB_FILE)
                 if not df.empty:
-                    df = df.iloc[::-1] # Newest first
-                    
+                    df = df.iloc[::-1]
                     st.dataframe(df[["Timestamp", "Email", "Notes", "File Count"]], use_container_width=True)
                     
                     st.markdown("### Download Submission")
@@ -192,7 +238,7 @@ elif page == "Admin Login":
                                     type="primary"
                                 )
                         else:
-                            st.warning("⚠️ Files missing (The Cloud server may have reset).")
+                            st.warning("⚠️ Files missing (Cloud reset).")
                 else:
                     st.info("No submissions yet.")
             else:
