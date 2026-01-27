@@ -11,7 +11,7 @@ from email.mime.multipart import MIMEMultipart
 ADMIN_PASSWORD = "mysecretpassword" # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
-YOUTUBE_LINK = "https://www.youtube.com/watch?v=mt_aSLGYNRs" # <--- YOUR YOUTUBE LINK
+YOUTUBE_LINK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" # <--- YOUR YOUTUBE LINK
 LOGO_FILENAME = "logo.png"
 
 st.set_page_config(page_title="Exolio Verification", layout="wide")
@@ -49,6 +49,28 @@ st.markdown("""
         margin-top: 50px; 
         margin-bottom: 20px; 
         color: #222;
+    }
+
+    /* EXPANDER STYLING (The "Deep Dive" Box) */
+    /* This targets the clickable header of the expander */
+    div[data-testid="stExpander"] details summary {
+        background-color: #f8f9fa !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 10px !important;
+        padding: 1.5rem !important; /* Make the box taller/bigger */
+    }
+    
+    /* This targets the text inside the header */
+    div[data-testid="stExpander"] details summary p {
+        font-size: 1.3rem !important; /* Make text bigger */
+        font-weight: 700 !important;   /* Make text bold */
+        color: #333 !important;
+    }
+    
+    /* Hover effect for the box */
+    div[data-testid="stExpander"] details summary:hover {
+        background-color: #eef3f8 !important;
+        border-color: #0078d7 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -217,8 +239,9 @@ if page == "Verification Request":
                     if not email_success:
                         st.warning("(Note: Files saved, but Admin alert failed.)")
 
-        # --- OPTION 2: DEEP DIVE (Option 3 removed) ---
-        with st.expander("📚 Deep Dive: Read the Science & Logic behind Exolio", expanded=False):
+        # --- OPTION 2: DEEP DIVE (BIG BOX, NO EMOJI) ---
+        # Emoji removed from text below
+        with st.expander("Deep Dive: Read the Science & Logic behind Exolio", expanded=False):
             st.markdown("### Is the AI detection score random?")
             st.write("""
             No. Our scores are derived from a deep-learning forensic analysis. Here is exactly what happens when you upload a file:
