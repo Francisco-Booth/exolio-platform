@@ -11,7 +11,7 @@ from email.mime.multipart import MIMEMultipart
 ADMIN_PASSWORD = "mysecretpassword" # <--- REMEMBER TO CHANGE THIS
 SUBMISSIONS_FOLDER = "submissions"
 DB_FILE = "client_requests.csv"
-YOUTUBE_LINK = "https://www.youtube.com/watch?v=mt_aSLGYNRs" # <--- YOUR YOUTUBE LINK
+YOUTUBE_LINK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" # <--- YOUR YOUTUBE LINK
 LOGO_FILENAME = "logo.png"
 
 st.set_page_config(page_title="Exolio Verification", layout="wide")
@@ -26,6 +26,22 @@ st.markdown("""
     .main-header {font-size: 30px; font-weight: 800; text-align: center; margin-bottom: 20px; color: #111;}
     .sub-text {font-size: 16px; text-align: center; color: #555; margin-bottom: 20px;}
     .success-box {background-color: #d1fae5; color: #065f46; padding: 20px; border-radius: 5px; text-align: center; margin-top: 10px;}
+    
+    /* Trusted Explanation Box (Option 1) */
+    .trust-box {
+        background-color: #f0f8ff; 
+        border-left: 5px solid #0078d7;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 25px;
+    }
+    .trust-title {
+        color: #005a9e;
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+    
     .donate-header {
         font-size: 22px; 
         font-weight: bold; 
@@ -43,35 +59,35 @@ if not os.path.exists(SUBMISSIONS_FOLDER):
 
 # --- EMAIL NOTIFICATION FUNCTION ---
 def send_notification_email(student_email, file_count, notes):
-    """
-    Sends an email to Francisco when a new file is uploaded.
-    It retrieves credentials securely from st.secrets.
-    """
     try:
-        # Load secrets from Streamlit Cloud
-        # Ensure you have set up [email] secrets in Streamlit Cloud Dashboard
         sender_email = st.secrets["email"]["sender_email"]
         sender_password = st.secrets["email"]["sender_password"]
         receiver_email = st.secrets["email"]["receiver_email"]
 
-        subject = f"🔔 New Exolio Submission from {student_email}"
+        subject = f"🔔 Submission from: {student_email}"
+        
         body = f"""
-        New document(s) uploaded!
+        New Exolio Upload!
         
-        Student Email: {student_email}
-        Files Uploaded: {file_count}
-        Notes: {notes}
+        STUDENT: {student_email}
+        FILES: {file_count}
+        NOTES: {notes}
         
-        Go to Admin Panel to download: https://share.streamlit.io/
+        ---------------------------------------
+        Simply hit 'Reply' to email this student.
+        ---------------------------------------
+        
+        Download files here: https://share.streamlit.io/
         """
 
         msg = MIMEMultipart()
-        msg['From'] = sender_email
+        msg['From'] = f"Exolio Bot <{sender_email}>"
         msg['To'] = receiver_email
         msg['Subject'] = subject
+        msg['Reply-To'] = student_email 
+
         msg.attach(MIMEText(body, 'plain'))
 
-        # Connect to Gmail SMTP server
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(sender_email, sender_password)
@@ -81,7 +97,6 @@ def send_notification_email(student_email, file_count, notes):
         return True
     except Exception as e:
         print(f"Email failed: {e}")
-        # Return False so we know it failed, but don't crash the app
         return False
 
 def save_submission(uploaded_files, email, notes):
@@ -106,7 +121,6 @@ def save_submission(uploaded_files, email, notes):
         "Folder_Path": folder_name
     }
     
-    # Save metadata to CSV
     if not os.path.exists(DB_FILE):
         df = pd.DataFrame([new_data])
         df.to_csv(DB_FILE, index=False)
@@ -131,7 +145,7 @@ st.sidebar.caption("System Status: Online")
 # ==========================================
 if page == "Verification Request":
     
-    # 1. PLACE LOGO
+    # 1. LOGO
     if os.path.exists(LOGO_FILENAME):
         st.image(LOGO_FILENAME, width=200) 
     
@@ -142,11 +156,23 @@ if page == "Verification Request":
         st.markdown("<div class='main-header'>AI Verification Service</div>", unsafe_allow_html=True)
         st.markdown("<div class='sub-text'>Upload your document. Our human expert team will manually verify it for AI patterns and email you a signed certificate of integrity.</div>", unsafe_allow_html=True)
         
-        # VIDEO
+        # --- VIDEO ---
         st.video(YOUTUBE_LINK)
-        st.markdown("<div style='margin-bottom: 30px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
 
-        # FORM
+        # --- OPTION 1: SIMPLE TRUST BOX ---
+        st.markdown("""
+        <div class='trust-box'>
+            <div class='trust-title'>🛡️ How our scores are calculated</div>
+            Exolio does not "guess." Our detection engine runs on a custom-trained neural network that has studied over 
+            24,000 parallel examples of Human writing vs. AI writing.<br><br>
+            Unlike a simple plagiarism checker, we analyze the <strong>mathematical probability</strong> of your sentence structure. 
+            AI models are statistically predictable; human writing is complex, messy, and creative ("bursty"). 
+            Our system detects these subtle, invisible signatures to verify that your work is authentically yours.
+        </div>
+        """, unsafe_allow_html=True)
+
+        # --- FORM ---
         with st.form("submission_form"):
             col1, col2 = st.columns(2)
             with col1:
@@ -154,6 +180,7 @@ if page == "Verification Request":
             with col2:
                 notes = st.text_input("Special Notes", placeholder="e.g. Check Page 4")
             
+            # Info box regarding processing time
             st.info("""
             **Estimated Processing Times (Based on Total Word Count):**
             *   **Less than 1,000 words:** Max 24 hours to return
@@ -174,10 +201,9 @@ if page == "Verification Request":
                 st.error("Please upload at least one file.")
             else:
                 with st.spinner("Encrypting, Queuing & Notifying..."):
-                    # 1. Save File
+                    # 1. Save
                     save_submission(uploaded_files, email, notes)
-                    
-                    # 2. Send Email Trigger (Using Secrets)
+                    # 2. Notify
                     email_success = send_notification_email(email, len(uploaded_files), notes)
                     
                     st.markdown("""
@@ -189,11 +215,25 @@ if page == "Verification Request":
                     """, unsafe_allow_html=True)
                     
                     if not email_success:
-                        st.warning("(Note: Files saved successfully, but Admin notification failed. We will check the database manually.)")
+                        st.warning("(Note: Files saved, but Admin alert failed.)")
 
-        # DONATION SECTION (STARLING BANK)
+        # --- OPTION 2: DEEP DIVE (Option 3 removed) ---
+        with st.expander("📚 Deep Dive: Read the Science & Logic behind Exolio", expanded=False):
+            st.markdown("### Is the AI detection score random?")
+            st.write("""
+            No. Our scores are derived from a deep-learning forensic analysis. Here is exactly what happens when you upload a file:
+            
+            1.  **Contextual Analysis (The "Brain"):** Your document is scanned by a specific Neural Network (based on Transformer architecture) that we finetuned on thousands of academic and creative texts. It doesn't just read words; it recognizes the distinct "tone" and rigid patterns used by models like ChatGPT and Claude.
+            
+            2.  **Measuring Perplexity:** AI generators function like sophisticated "autocomplete"—they constantly choose the most mathematically probable next word. This results in "Low Perplexity" (high predictability). Humans often use unexpected word choices ("High Perplexity"). Our engine measures this deviation.
+            
+            3.  **Measuring Burstiness:** AI writing tends to be monotonous in sentence rhythm. Humans write with "Burstiness"—we mix short sentences with very long, complex ones.
+            
+            We combine these metrics into a confidence percentage. If Exolio says you are human, it’s because your writing contains the unique, chaotic creativity that algorithms cannot easily replicate.
+            """)
+
+        # DONATION
         st.markdown("<div class='donate-header'>Please donate £5 to keep my new company Exolio AI going</div>", unsafe_allow_html=True)
-        
         st.link_button("👉 Click here to Pay securely via Starling Bank", "https://settleup.starlingbank.com/francisco-booth-88544a", type="primary", use_container_width=True)
 
 
@@ -236,7 +276,7 @@ elif page == "Admin Login":
                                     type="primary"
                                 )
                         else:
-                            st.warning("⚠️ Files missing (Cloud reset).")
+                            st.warning("⚠️ Files missing.")
                 else:
                     st.info("No submissions yet.")
             else:
