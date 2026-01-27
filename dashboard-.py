@@ -248,9 +248,9 @@ if page == "Verification Request":
             
             1.  **Contextual Analysis (The "Brain"):** Your document is scanned by a specific Neural Network (based on Transformer architecture) that we finetuned on thousands of academic and creative texts. It doesn't just read words; it recognizes the distinct "tone" and rigid patterns used by models like ChatGPT and Claude.
             
-            2.  **Measuring Perplexity:** AI generators function like sophisticated "autocomplete"—they constantly choose the most mathematically probable next word. This results in "Low Perplexity" (high predictability). Humans often use unexpected word choices ("High Perplexity"). Our engine measures this deviation.
+            2.  **Measuring Perplexity:** AI generators function like sophisticated "autocomplete" they constantly choose the most mathematically probable next word. This results in "Low Perplexity" (high predictability). Humans often use unexpected word choices ("High Perplexity"). Our engine measures this deviation.
             
-            3.  **Measuring Burstiness:** AI writing tends to be monotonous in sentence rhythm. Humans write with "Burstiness"—we mix short sentences with very long, complex ones.
+            3.  **Measuring Burstiness:** AI writing tends to be monotonous in sentence rhythm. Humans write with "Burstiness" we mix short sentences with very long, complex ones.
             
             We combine these metrics into a confidence percentage. If Exolio says you are human, it’s because your writing contains the unique, chaotic creativity that algorithms cannot easily replicate.
             """)
